@@ -1,6 +1,5 @@
 package com.mps.reserveme.controller;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.mps.reserveme.dto.AuthDto;
@@ -16,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping("/loginUser")
-    public ResponseEntity loginUser(@RequestBody User user) throws ExecutionException, InterruptedException, FirebaseAuthException {
+    public ResponseEntity loginUser(@RequestBody User user) throws ExecutionException, InterruptedException, FirebaseAuthException, IOException {
 
 
         String token = userService.loginUser(user);
@@ -117,8 +117,7 @@ public class UserController {
 
         User response = userService.updateUser(user);
 
-        String message =
-                String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), response.getUserId());
+        String message = String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), response.getUserId());
 
         UserDto userDto = new UserDto(message);
 
