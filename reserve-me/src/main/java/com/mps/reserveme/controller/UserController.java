@@ -125,4 +125,20 @@ public class UserController {
     }
 
 
+    @PutMapping("/users/{userId}/subscribe/{resourceId}")
+    public ResponseEntity<UserDto> subscribeToResource(@PathVariable String userId, @PathVariable String resourceId)
+            throws ExecutionException, InterruptedException {
+
+        User response = userService.subscribeToResource(userId, resourceId);
+
+        String message = String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), response.getUserId());
+
+        UserDto userDto = new UserDto(message);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userDto);
+    }
+
+
+
+
 }

@@ -41,6 +41,7 @@ public class UserService {
      */
     public User updateUser(User user) {
         Firestore db = FirestoreClient.getFirestore();
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
 
         ApiFuture<WriteResult> writeResult = db.collection(Database.USERS.getValue()).document(user.getUserId()).set(user);
 
@@ -146,6 +147,20 @@ public class UserService {
             System.out.println(response.toString());
             return response.toString();
         }
+
+    }
+
+    public User subscribeToResource(String userId, String resourceId) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+
+        ApiFuture<DocumentSnapshot> documentSnapshotApiFuture = db.collection(Database.USERS.getValue()).document(userId).get();
+
+        DocumentSnapshot document = documentSnapshotApiFuture.get();
+        User user = document.toObject(User.class);
+
+        user.getSubscribed().add(resourceId);
+
+        return updateUser(user);
 
     }
 }

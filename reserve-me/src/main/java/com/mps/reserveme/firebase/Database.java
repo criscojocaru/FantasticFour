@@ -2,7 +2,9 @@ package com.mps.reserveme.firebase;
 
 public enum Database {
     FIREBASE_URL("https://reserve-me-783b7.firebaseio.com"),
-    USERS("users");
+    USERS("users"),
+    RESOURCES("resources"),
+    RESERVATIONS("reservations");
 
     private String value;
 
