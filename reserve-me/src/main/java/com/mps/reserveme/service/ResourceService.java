@@ -7,7 +7,6 @@ import com.mps.reserveme.exception.FirebaseDatabaseException;
 import com.mps.reserveme.firebase.Database;
 import com.mps.reserveme.model.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class ResourceService {
 
         String resourceId = newResource.getId();
         resource.setResourceId(resourceId);
-        resource.setState("Free");
+        resource.setState("Available");
         ApiFuture<WriteResult> future = newResource.set(resource);
         db.batch().commit();
 

@@ -151,17 +151,35 @@ public class UserService {
     }
 
     public User subscribeToResource(String userId, String resourceId) throws ExecutionException, InterruptedException {
+
+        User user = getUserById(userId);
+        if (!user.getSubscribed().contains(resourceId)) {
+            user.getSubscribed().add(resourceId);
+            return updateUserNoPass(user);
+        }
+
+        return user;
+
+    }
+
+    public User unsubscribeToResource(String userId, String resourceId) throws ExecutionException, InterruptedException {
+        User user = getUserById(userId);
+        if (user.getSubscribed().contains(resourceId)) {
+            user.getSubscribed().remove(resourceId);
+            return updateUserNoPass(user);
+        }
+
+        return user;
+    }
+
+    public User updateUserNoPass(User user) {
         Firestore db = FirestoreClient.getFirestore();
 
-        ApiFuture<DocumentSnapshot> documentSnapshotApiFuture = db.collection(Database.USERS.getValue()).document(userId).get();
+        ApiFuture<WriteResult> writeResult = db.collection(Database.USERS.getValue()).document(user.getUserId()).set(user);
 
-        DocumentSnapshot document = documentSnapshotApiFuture.get();
-        User user = document.toObject(User.class);
+        log.info(String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), user.getUserId()));
 
-        user.getSubscribed().add(resourceId);
-
-        return updateUser(user);
-
+        return user;
     }
 }
 

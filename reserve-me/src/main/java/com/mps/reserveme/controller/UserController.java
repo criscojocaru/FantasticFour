@@ -5,7 +5,9 @@ import com.google.firebase.auth.UserRecord;
 import com.mps.reserveme.dto.AuthDto;
 import com.mps.reserveme.dto.UserDto;
 import com.mps.reserveme.firebase.FirebaseAuthentication;
+import com.mps.reserveme.model.Resource;
 import com.mps.reserveme.model.User;
+import com.mps.reserveme.service.ResourceService;
 import com.mps.reserveme.service.ServiceMessages;
 import com.mps.reserveme.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -27,6 +30,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ResourceService resourceService;
 
     @Autowired
     private FirebaseAuthentication firebaseAuthentication;
@@ -112,8 +118,8 @@ public class UserController {
                                               @RequestHeader(name="Authorization") String token)
             throws FirebaseAuthException {
 
-        if (!firebaseAuthentication.checkAdminRole(token.substring(SPLIT)))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
+        user.setUserId(userId);
 
         User response = userService.updateUser(user);
 
@@ -125,10 +131,12 @@ public class UserController {
     }
 
 
-    @PutMapping("/users/{userId}/subscribe/{resourceId}")
-    public ResponseEntity<UserDto> subscribeToResource(@PathVariable String userId, @PathVariable String resourceId)
-            throws ExecutionException, InterruptedException {
+    @PutMapping("/subscribe/{resourceId}")
+    public ResponseEntity<UserDto> subscribeToResource(@PathVariable String resourceId,
+                                                       @RequestHeader(name="Authorization") String token)
+            throws ExecutionException, InterruptedException, FirebaseAuthException {
 
+        String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));
         User response = userService.subscribeToResource(userId, resourceId);
 
         String message = String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), response.getUserId());
@@ -138,7 +146,35 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userDto);
     }
 
+    @PutMapping("/unsubscribe/{resourceId}")
+    public ResponseEntity<UserDto> unsubscribeToResource(@PathVariable String resourceId,
+                                                       @RequestHeader(name="Authorization") String token)
+            throws ExecutionException, InterruptedException, FirebaseAuthException {
+
+        String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));
+        User response = userService.unsubscribeToResource(userId, resourceId);
+
+        String message = String.format(ServiceMessages.UPDATE_USER_SUCCESS.getValue(), response.getUserId());
+
+        UserDto userDto = new UserDto(message);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userDto);
+    }
 
 
+    @GetMapping("/users/subscribed")
+    public ResponseEntity<List<Resource>> getSubscribedResourcesForCurrentUser(@RequestHeader(name="Authorization") String token)
+            throws ExecutionException, InterruptedException, FirebaseAuthException {
 
+        String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));
+        User response = userService.getUserById(userId);
+
+        List<String> subscribedResourceIds = response.getSubscribed();
+        List<Resource> subscribedResources = new ArrayList<>();
+        for (String subscribedResourceId : subscribedResourceIds) {
+            subscribedResources.add(resourceService.getResourceById(subscribedResourceId));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(subscribedResources);
+    }
 }

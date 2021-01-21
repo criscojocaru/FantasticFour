@@ -9,7 +9,11 @@ public enum ServiceMessages {
     RESOURCE_NOT_FOUND("Could not find resource with id = %s"),
     RESOURCE_NOT_CREATED("Could not create resource"),
     CREATE_RESOURCE_SUCCESS("Resource with id = %s was successfully created"),
-    UPDATE_RESOURCE_SUCCESS("Successfully updated resource with id = %s");
+    UPDATE_RESOURCE_SUCCESS("Successfully updated resource with id = %s"),
+    RESERVATION_NOT_FOUND("Could not find reservation with id = %s"),
+    RESERVATION_NOT_CREATED("Could not create reservation"),
+    CREATE_RESERVATION_SUCCESS("Successfully created reservation with id = %s"),
+    UPDATE_RESERVATION_SUCCESS("Successfully updated reservation with id = %s");
 
     private String value;
 

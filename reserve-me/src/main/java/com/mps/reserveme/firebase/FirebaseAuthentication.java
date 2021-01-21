@@ -39,7 +39,11 @@ public class FirebaseAuthentication {
 
         // create normal users using custom claims
         Map<String, Object> claims = new HashMap<>();
-        claims.put("admin", true);
+        if (user.getRole().equals("admin")) {
+            claims.put("admin", true);
+        } else {
+            claims.put("admin", false);
+        }
         FirebaseAuth.getInstance().setCustomUserClaims(userRecord.getUid(), claims);
 
         ApiFuture<WriteResult> future = db.collection(Database.USERS.getValue()).document(user.getUserId()).set(user);

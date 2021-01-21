@@ -5,16 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Reservation {
+    private String reservationId;
     private String userId;
     private String resourceId;
-    private Timestamp start;
-    private Timestamp end;
+    private String reason;
+    private String start;
+    private String end;
     private Boolean finished;
 }
