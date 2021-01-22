@@ -48,7 +48,7 @@ public class FirebaseAuthentication {
 
         ApiFuture<WriteResult> future = db.collection(Database.USERS.getValue()).document(user.getUserId()).set(user);
 
-        return  userRecord;
+        return userRecord;
     }
 
     public Boolean checkAdminRole(String token) throws FirebaseAuthException {

@@ -24,7 +24,7 @@ public class ResourceService {
         DocumentSnapshot document = future.get();
         Resource resource = document.toObject(Resource.class);
 
-        if(resource == null)
+        if (resource == null)
             throw new FirebaseDatabaseException(String.format(ServiceMessages.RESOURCE_NOT_FOUND.getValue(), resourceId));
 
         return resource;
@@ -58,7 +58,7 @@ public class ResourceService {
 
         WriteResult result = future.get();
 
-        if(result == null)
+        if (result == null)
             throw new FirebaseDatabaseException(ServiceMessages.RESOURCE_NOT_CREATED.getValue());
 
         log.info(String.format(ServiceMessages.CREATE_RESOURCE_SUCCESS.getValue(), resourceId));

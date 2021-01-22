@@ -53,7 +53,7 @@ public class ResourceController {
      */
     @PostMapping("/addResource")
     public ResponseEntity<Resource> createResource(@RequestBody Resource resource,
-                                              @RequestHeader (name="Authorization") String token)
+                                                   @RequestHeader(name = "Authorization") String token)
             throws FirebaseAuthException, ExecutionException, InterruptedException {
 
         if (!firebaseAuthentication.checkAdminRole(token.substring(SPLIT)))

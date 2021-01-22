@@ -103,15 +103,15 @@ public class UserService {
     public String loginUser(User user) throws ExecutionException, InterruptedException, FirebaseAuthException, IOException {
         List<User> users = getAllUsers();
         User foundUser = users.stream()
-                        .filter(currentUser -> currentUser.getEmail().equals(user.getEmail())
-                            && currentUser.getPassword().equals(DigestUtils.sha256Hex(user.getPassword())))
-                        .findFirst()
-                        .orElse(null);
+                .filter(currentUser -> currentUser.getEmail().equals(user.getEmail())
+                        && currentUser.getPassword().equals(DigestUtils.sha256Hex(user.getPassword())))
+                .findFirst()
+                .orElse(null);
 
         if (foundUser != null) {
             String customToken = FirebaseAuth.getInstance().createCustomToken(foundUser.getUserId());
             String tokenId = exchangeTokens(customToken);
-            ObjectMapper objectMapper  = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
             Token token = objectMapper.readValue(tokenId, Token.class);
             return token.getIdToken();
         }
@@ -125,18 +125,18 @@ public class UserService {
         String request = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=" + webAPIKey;
 
         URL url = new URL(request);
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json; utf-8");
         con.setRequestProperty("Accept", "application/json");
         con.setDoOutput(true);
         String jsonInputString = "{\"token\": \"" + customToken + "\", \"returnSecureToken\": true}";
-        try(OutputStream os = con.getOutputStream()) {
+        try (OutputStream os = con.getOutputStream()) {
             byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
 
-        try(BufferedReader br = new BufferedReader(
+        try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String responseLine = null;

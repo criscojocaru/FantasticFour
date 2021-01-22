@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -50,7 +51,14 @@ public class UserController {
      * @throws InterruptedException
      */
     @PostMapping("/registerUser")
-    public ResponseEntity<AuthDto> registerUser(@RequestBody User user) throws FirebaseAuthException {
+    public ResponseEntity<AuthDto> registerUser(@RequestBody User user) throws FirebaseAuthException, ExecutionException, InterruptedException {
+
+        User userExists = userService.getAllUsers().stream().filter(user1 -> user1.getEmail().equals(user.getEmail())).findFirst().orElse(null);
+
+        if (userExists != null) {
+            AuthDto response = new AuthDto(userExists.getUserId(), new Date().toString(), "Email already used!");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
 
         UserRecord userRecord = firebaseAuthentication.registerUser(user);
         AuthDto response = modelMapper.map(userRecord, AuthDto.class);
@@ -66,7 +74,6 @@ public class UserController {
     @PostMapping("/loginUser")
     public ResponseEntity loginUser(@RequestBody User user) throws ExecutionException, InterruptedException, FirebaseAuthException, IOException {
 
-
         String token = userService.loginUser(user);
         if (token != null) {
             return ResponseEntity.status(HttpStatus.OK).body(token);
@@ -74,7 +81,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong username or password!");
     }
-
 
 
     /**
@@ -107,6 +113,17 @@ public class UserController {
     }
 
 
+    @GetMapping("/users/userProfile")
+    public ResponseEntity<User> getUserProfile(@RequestHeader(name = "Authorization") String token)
+            throws ExecutionException, InterruptedException, FirebaseAuthException {
+
+        String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
+        User response = userService.getUserById(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
     /**
      * @param user
      * @param token
@@ -115,7 +132,7 @@ public class UserController {
      */
     @PutMapping("/users/updateUser")
     public ResponseEntity<UserDto> updateUser(@RequestBody User user,
-                                              @RequestHeader(name="Authorization") String token)
+                                              @RequestHeader(name = "Authorization") String token)
             throws FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
@@ -133,7 +150,7 @@ public class UserController {
 
     @PutMapping("/subscribe/{resourceId}")
     public ResponseEntity<UserDto> subscribeToResource(@PathVariable String resourceId,
-                                                       @RequestHeader(name="Authorization") String token)
+                                                       @RequestHeader(name = "Authorization") String token)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));
@@ -148,7 +165,7 @@ public class UserController {
 
     @PutMapping("/unsubscribe/{resourceId}")
     public ResponseEntity<UserDto> unsubscribeToResource(@PathVariable String resourceId,
-                                                       @RequestHeader(name="Authorization") String token)
+                                                         @RequestHeader(name = "Authorization") String token)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));
@@ -163,7 +180,7 @@ public class UserController {
 
 
     @GetMapping("/users/subscribed")
-    public ResponseEntity<List<Resource>> getSubscribedResourcesForCurrentUser(@RequestHeader(name="Authorization") String token)
+    public ResponseEntity<List<Resource>> getSubscribedResourcesForCurrentUser(@RequestHeader(name = "Authorization") String token)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid((token.substring(SPLIT)));

@@ -24,12 +24,12 @@ public class ReservationController {
 
     @Autowired
     private FirebaseAuthentication firebaseAuthentication;
-    
+
     @Autowired
     private ReservationService reservationService;
 
     @GetMapping("/reservations/{reservationId}")
-    public ResponseEntity<Reservation> getreservationsById(@PathVariable String reservationId)
+    public ResponseEntity<Reservation> getReservationsById(@PathVariable String reservationId)
             throws ExecutionException, InterruptedException {
         Reservation response = reservationService.getReservationById(reservationId);
 
@@ -37,9 +37,17 @@ public class ReservationController {
     }
 
     @GetMapping("/reservations")
-    public ResponseEntity<List<Reservation>> getAllreservations()
+    public ResponseEntity<List<Reservation>> getAllReservations()
             throws ExecutionException, InterruptedException {
         List<Reservation> response = reservationService.getAllReservations();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/reservations/users/{userId}")
+    public ResponseEntity<List<Reservation>> getReservationsByUserId(@PathVariable String userId)
+            throws ExecutionException, InterruptedException {
+        List<Reservation> response = reservationService.getReservationsByUserId(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -54,8 +62,8 @@ public class ReservationController {
      * @throws InterruptedException
      */
     @PostMapping("/addReservation")
-    public ResponseEntity<Reservation> createreservation(@RequestBody Reservation reservation,
-                                                   @RequestHeader (name="Authorization") String token)
+    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation,
+                                                         @RequestHeader(name = "Authorization") String token)
             throws FirebaseAuthException, ExecutionException, InterruptedException, ParseException {
 
         String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
@@ -68,7 +76,7 @@ public class ReservationController {
 
     @PutMapping("/updateReservation")
     public ResponseEntity<Object> updateReservation(@RequestBody Reservation reservation,
-                                                         @RequestHeader (name="Authorization") String token) throws ExecutionException, InterruptedException, FirebaseAuthException {
+                                                    @RequestHeader(name = "Authorization") String token) throws ExecutionException, InterruptedException, FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
         if (userId.equals(reservation.getUserId())) {
@@ -82,15 +90,15 @@ public class ReservationController {
     }
 
     @DeleteMapping("/deleteReservation/{reservationId}")
-    public ResponseEntity deleteNews(@PathVariable String reservationId,
-                                              @RequestHeader (name="Authorization") String token)
+    public ResponseEntity deleteReservation(@PathVariable String reservationId,
+                                            @RequestHeader(name = "Authorization") String token)
             throws ExecutionException, InterruptedException, FirebaseAuthException {
 
         String userId = firebaseAuthentication.getUid(token.substring(SPLIT));
 
-        boolean succes = reservationService.deleteReservation(reservationId, userId);
+        boolean success = reservationService.deleteReservation(reservationId, userId);
 
-        if (succes) {
+        if (success) {
             UserDto userDto = new UserDto("Successfully deleted reservation");
             return ResponseEntity.status(HttpStatus.OK).body(userDto);
         }

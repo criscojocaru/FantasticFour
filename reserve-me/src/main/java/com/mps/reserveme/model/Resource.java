@@ -14,4 +14,5 @@ public class Resource {
     private String description;
     private String name;
     private String state;
+    private Integer capacity;
 }

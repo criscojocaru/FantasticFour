@@ -6,20 +6,26 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.mps.reserveme.exception.FirebaseDatabaseException;
 import com.mps.reserveme.firebase.Database;
 import com.mps.reserveme.model.Reservation;
+import com.mps.reserveme.model.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ReservationService {
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    ResourceService resourceService;
 
     public Reservation getReservationById(String reservationId) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
@@ -28,7 +34,7 @@ public class ReservationService {
         DocumentSnapshot document = future.get();
         Reservation reservation = document.toObject(Reservation.class);
 
-        if(reservation == null)
+        if (reservation == null)
             throw new FirebaseDatabaseException(String.format(ServiceMessages.RESERVATION_NOT_FOUND.getValue(), reservationId));
 
         return reservation;
@@ -64,7 +70,7 @@ public class ReservationService {
 
         WriteResult result = future.get();
 
-        if(result == null)
+        if (result == null)
             throw new FirebaseDatabaseException(ServiceMessages.RESERVATION_NOT_CREATED.getValue());
 
         log.info(String.format(ServiceMessages.CREATE_RESERVATION_SUCCESS.getValue(), reservationId));
@@ -79,6 +85,12 @@ public class ReservationService {
 
         log.info(String.format(ServiceMessages.UPDATE_RESERVATION_SUCCESS.getValue(), reservation.getReservationId()));
 
+        if (reservation.getFinished()) {
+            Resource resource = resourceService.getResourceById(reservation.getResourceId());
+            resource.setState("Available");
+            resourceService.updateResource(resource);
+        }
+
         return reservation;
     }
 
@@ -91,5 +103,13 @@ public class ReservationService {
         }
 
         return false;
+    }
+
+    public List<Reservation> getReservationsByUserId(String userId) throws ExecutionException, InterruptedException {
+
+        return getAllReservations()
+                .stream()
+                .filter(reservation -> reservation.getUserId().equals(userId))
+                .collect(Collectors.toList());
     }
 }
