@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,4 +17,6 @@ public class Resource {
     private String name;
     private String state;
     private Integer capacity;
+    private List<Reservation> reservations;
+    private List<String> reservationIds;
 }

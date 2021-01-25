@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class Reservation {
     private String reservationId;
     private String userId;
+    private User user;
     private String resourceId;
     private String reason;
     private String start;

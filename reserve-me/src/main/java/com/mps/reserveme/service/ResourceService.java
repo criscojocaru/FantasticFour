@@ -5,8 +5,10 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.mps.reserveme.exception.FirebaseDatabaseException;
 import com.mps.reserveme.firebase.Database;
+import com.mps.reserveme.model.Reservation;
 import com.mps.reserveme.model.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +18,9 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @Service
 public class ResourceService {
+
+    @Autowired
+    ReservationService reservationService;
 
     public Resource getResourceById(String resourceId) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
@@ -27,6 +32,10 @@ public class ResourceService {
         if (resource == null)
             throw new FirebaseDatabaseException(String.format(ServiceMessages.RESOURCE_NOT_FOUND.getValue(), resourceId));
 
+        for (String reservationId : resource.getReservationIds()) {
+            Reservation reservation = reservationService.getReservationById(reservationId);
+            resource.getReservations().add(reservation);
+        }
         return resource;
     }
 
@@ -53,6 +62,8 @@ public class ResourceService {
         String resourceId = newResource.getId();
         resource.setResourceId(resourceId);
         resource.setState("Available");
+        resource.setReservationIds(new ArrayList<>());
+        resource.setReservations(new ArrayList<>());
         ApiFuture<WriteResult> future = newResource.set(resource);
         db.batch().commit();
 

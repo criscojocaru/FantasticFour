@@ -1,6 +1,5 @@
 package com.mps.reserveme;
 
-import com.mps.reserveme.firebase.Database;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,7 +19,8 @@ public class ReserveMeApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins(Database.FIREBASE_URL.getValue());
+                registry.addMapping("/**");
+
             }
         };
     }
