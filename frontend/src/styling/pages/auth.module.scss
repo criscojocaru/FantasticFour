@@ -1,0 +1,67 @@
+@import '../variables/theme.scss';
+@import '../mixins/mixins.scss';
+
+.container {
+  h3 {
+    color: $light;
+    text-align: left;
+    width: 100%;
+  }
+  position: relative;
+
+  img {
+    position: absolute;
+    // left: 10px;
+    z-index: 1;
+    top: 0;
+    width: 90%;
+  }
+
+  @include flex_center(column, center, center);
+
+  min-height: calc(#{$min_page_h} - #{$footer_height});
+  width: 90%;
+
+  form {
+    z-index: 2;
+    @include flex_center(column, center, center);
+    min-width: 25%;
+    margin-bottom: 35px;
+
+    input,
+    select {
+      width: 100%;
+      font-size: 1.2em;
+      color: $light;
+    }
+
+    select {
+      min-height: 40px;
+    }
+
+    .option {
+      background-color: $light !important;
+      color: $dark !important;
+      padding: 5px;
+      border-radius: 5px !important;
+      border: none;
+      outline: none;
+    }
+  }
+  button {
+    min-width: 25%;
+    font-size: 1.2em;
+    color: $dark;
+    z-index: 10;
+  }
+
+  p {
+    &:last-child {
+      color: red;
+      opacity: 0.8;
+      font-size: 1em;
+      text-align: left;
+      width: 100%;
+    }
+  }
+}
