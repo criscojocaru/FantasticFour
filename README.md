@@ -18,6 +18,7 @@ The purpose of this project is to develop a web platform that allows users to se
 
 * [Firebase]()
 * [Java]()
+* [React]()
 
 <!-- RESOURCES -->
 ## Resources
